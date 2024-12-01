@@ -55,7 +55,19 @@
             <urgency>Immediate</urgency>
             <!-- The severity should be function of magnitude ? 
             Severity values are: Extreme, Severe, Moderate, Minor, unknown -->
-            <severity>Unknown</severity>
+           <!-- For now the test values for severity are: severe if magnitude > 3
+           and Minor if magnitude >= 2 and magnitude < 3 -->
+           <xsl:choose>
+               <xsl:when test="$magnitude &gt;= 3">
+                   <severity>Severe</severity>
+               </xsl:when>
+               <xsl:when test="$magnitude &gt;= 2 and $magnitude &lt; 3">
+                   <severity>Minor</severity>
+               </xsl:when>
+               <xsl:otherwise>
+                   <severity>Unknown</severity>
+               </xsl:otherwise>
+           </xsl:choose>
             <!-- Possible to use likelihood value for certainty ?
             certainty values are: Observed,Likely, Possible, Unlikely, Unknown-->
             <certainty>Unknown</certainty>
@@ -103,7 +115,19 @@
             <urgency>Immediata</urgency>
             <!-- The severity should be function of magnitude ? 
             Severity values are: Extreme, Severe, Moderate, Minor, unknown -->
-            <severity>Unknown</severity>
+           <!-- For now the test values for severity are: severe if magnitude > 3
+           and Minor if magnitude >= 2 and magnitude < 3 -->
+           <xsl:choose>
+               <xsl:when test="$magnitude &gt;= 3">
+                   <severity>Severo</severity>
+               </xsl:when>
+               <xsl:when test="$magnitude &gt;= 2 and $magnitude &lt; 3">
+                   <severity>Menor</severity>
+               </xsl:when>
+               <xsl:otherwise>
+                   <severity>Desconocido</severity>
+               </xsl:otherwise>
+           </xsl:choose>
             <!-- Possible to use likelihood value for certainty ?
             certainty values are: Observed,Likely, Possible, Unlikely, Unknown-->
             <certainty>Unknown</certainty>
