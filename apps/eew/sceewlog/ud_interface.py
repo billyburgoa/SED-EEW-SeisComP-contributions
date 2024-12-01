@@ -21,6 +21,7 @@ from io import BytesIO
 import datetime
 import time
 import os
+import json
 import lxml.etree as ET
 
 import seiscomp
@@ -236,6 +237,23 @@ class CoreEventInfo(UDConnection):
                 dom = self.modify_headline(ep, dom)
 
         return ET.tostring(dom, encoding='utf8', pretty_print=pretty_print)
+    
+    # Method to add the XML pretty print string and wrap it in a JSON structure.
+    def message_to_json(self, ep):
+        # Encode the message to XML string
+        xml_message = self.message_encoder(ep, pretty_print=True).decode('utf-8')
+        
+        # Remove newlines and any trailing '%' symbols
+        xml_message = xml_message.replace("\n", "").strip('%')
+        
+        # Wrap the XML in a JSON structure
+        json_data = {
+            "cap_xml": xml_message
+        }
 
+        # Convert Python dict to JSON string
+        json_message = json.dumps(json_data)
+        return json_message
+    
 if __name__ == '__main__':
     pass
