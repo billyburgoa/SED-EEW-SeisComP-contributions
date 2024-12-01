@@ -102,6 +102,8 @@ class Listener(seiscomp.client.Application):
         self.eewComment = True #
 
         self.eewScript= None 
+        
+        self.json = True
                                
         
         
@@ -856,8 +858,11 @@ class Listener(seiscomp.client.Application):
             seiscomp.logging.debug("Cannot find origin %s in cache." % orgID)
         
         if self.udevt is not None:
-            self.udevt.send( self.udevt.message_encoder( ep ) )
-        
+            if self.json:
+                self.udevt.send( self.udevt.message_to_json( ep ) )
+            else:
+                self.udevt.send( self.udevt.message_encoder( ep ) )
+
         if self.fcm and self.fcmTopicNotification:
             self.moFcm.send( ep )
         
