@@ -839,8 +839,36 @@ class Listener(seiscomp.client.Application):
 
         ep = seiscomp.datamodel.EventParameters()
         evt = self.cache.get(seiscomp.datamodel.Event, evID)
+        
         if evt:
+            # Adding the updateNumber as a comment in the event object:
+            
+            # 1. Check if the "updateNumber" comment already exists:
+            found = False
+            num_comments = evt.commentCount()
+            for i in range(num_comments):
+                comm = evt.comment(i)
+                if comm.id() == "updateNumber":
+                    # Update the comment text with the current updateNumber value
+                    new_val = str(self.event_dict[evID].get("updateNumber", "0"))
+                    comm.setText(new_val)
+                    found = True
+                    seiscomp.logging.info("Updated comment in event object -> id: updateNumber, text value: %s" % new_val)
+                    break
+            # 2. If not found, create and add a new comment:
+            if not found:
+                updateComment = seiscomp.datamodel.Comment()
+                updateComment.setId("updateNumber")
+                updateComment.setText(str(self.event_dict[evID].get("updateNumber", "0")))
+                ci = seiscomp.datamodel.CreationInfo()
+                ci.setCreationTime(seiscomp.core.Time().GMT())
+                updateComment.setCreationInfo(ci)
+                evt.add(updateComment)
+                seiscomp.logging.info("New comment in event object -> id: updateNumber, text value: 0")
+            
+            # adding the event object in the event parameter object
             ep.add(evt)
+            
         else:
             seiscomp.logging.debug("Cannot find event %s in cache." % evID)
         org = self.cache.get(seiscomp.datamodel.Origin, orgID)
@@ -856,7 +884,7 @@ class Listener(seiscomp.client.Application):
                     ep.add(pk)
         else:
             seiscomp.logging.debug("Cannot find origin %s in cache." % orgID)
-        
+
         if self.udevt is not None:
             if self.json:
                 self.udevt.send( self.udevt.message_to_json( ep ) )
@@ -1034,6 +1062,7 @@ class Listener(seiscomp.client.Application):
                 self.event_dict[evID]['alert'] = False
                 self.event_dict[evID]['lastupdatesent'] = None
                 self.event_dict[evID]['updates'] = {}
+                self.event_dict[evID]['updateNumber'] = -1
                 try:
                     self.event_dict[evID]['timestamp'] = \
                         evt.creationInfo().modificationTime()
@@ -1386,6 +1415,10 @@ class Listener(seiscomp.client.Application):
             else:
                 seiscomp.logging.debug('Sending and alert....')
                 self.event_dict[evID]['updates'][updateno]['eew'] = True
+                old_number = self.event_dict[evID]['updateNumber']
+                self.event_dict[evID]['updateNumber'] += 1
+                seiscomp.logging.info("EEWLOG: Updated event %s: updateNumber changed from %d to %d" %
+                      (evID, old_number, self.event_dict[evID]['updateNumber']))
                 #saving the last update sent or reported
                 self.event_dict[evID]['lastupdatesent'] = updateno 
                 self.event_dict[evID]['alert'] = True
