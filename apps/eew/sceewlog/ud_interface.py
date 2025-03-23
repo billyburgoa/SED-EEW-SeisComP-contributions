@@ -23,6 +23,7 @@ import time
 import os
 import json
 import lxml.etree as ET
+import uuid
 
 import seiscomp
 from seiscomp.io import Exporter, ExportSink
@@ -247,7 +248,9 @@ class CoreEventInfo(UDConnection):
         xml_message = xml_message.replace("\n", "").strip('%')
         
         # Wrap the XML in a JSON structure
+        random_uuid = str(uuid.uuid4())
         json_data = {
+            "UUID": random_uuid,
             "cap_xml": xml_message
         }
 
